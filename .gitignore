@@ -1,5 +1,6 @@
 # Local source image folders
-portfolio/
+portfolio/*
+!portfolio/.gitkeep
 
 # Generated workflow outputs
 data/*

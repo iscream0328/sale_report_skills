@@ -12,6 +12,7 @@ This repository contains only reusable skill instructions, workflow scripts, sch
 ├── data/                   # Generated local outputs, ignored except .gitkeep
 ├── docs/                   # Current operating docs
 ├── fixtures/               # Small HTML fixture for local parser tests
+├── portfolio/              # Put local portfolio images here; only .gitkeep is tracked
 ├── schemas/                # JSON schemas for records and recommendations
 ├── scripts/                # Python workflow scripts
 │   └── instagram/          # gallery-dl helper and local download folders
@@ -37,11 +38,13 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-Then place portfolio images in:
+Then place portfolio images in the default input folder:
 
 ```text
 portfolio/
 ```
+
+The repository tracks the empty `portfolio/` folder with `.gitkeep`, but it does not commit real images.
 
 After that, run the skills or scripts in this order:
 
@@ -74,16 +77,19 @@ python -m pip install -r requirements.txt
 1. Prepare portfolio images locally:
 
 ```bash
-mkdir -p portfolio
+# portfolio/ already exists after clone.
+# Add local .jpg, .jpeg, .png, or .webp files there.
 ```
 
 2. Build portfolio metadata:
 
 ```bash
-python3 scripts/build_portfolio_metadata.py \
-  --source-dir portfolio \
-  --slug portfolio
+python3 scripts/build_portfolio_metadata.py
 ```
+
+By default, the script reads `portfolio/`, writes `data/portfolio_index.json`, and updates the existing index incrementally. If images are added, only new or changed images are newly analyzed. If images are removed from `portfolio/`, their records are removed from the generated index. Use `--rebuild-all` only when you want to regenerate every record from scratch.
+
+The generated HTML viewer opens with upload date newest first, then brand tag order.
 
 3. Download Instagram images when needed:
 
@@ -130,7 +136,7 @@ python3 scripts/export_proposal_sections_pdf.py \
 
 The following are generated locally and intentionally ignored:
 
-- `portfolio/`
+- `portfolio/*` except `portfolio/.gitkeep`
 - `data/*`
 - `scripts/instagram/downloads/*`
 - `scripts/instagram/archive/*`

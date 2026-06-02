@@ -140,6 +140,116 @@ def load_json(path: Path) -> dict[str, Any]:
         return json.load(file)
 
 
+def load_existing_records(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    with path.open("r", encoding="utf-8") as file:
+        data = json.load(file)
+    if not isinstance(data, list):
+        return []
+    return [record for record in data if isinstance(record, dict)]
+
+
+def sidecar_path_for(image_path: Path) -> Path:
+    return image_path.with_suffix(image_path.suffix + ".json")
+
+
+def source_fingerprint(image_path: Path) -> dict[str, Any]:
+    image_stat = image_path.stat()
+    sidecar_path = sidecar_path_for(image_path)
+    fingerprint: dict[str, Any] = {
+        "image_size_bytes": image_stat.st_size,
+        "image_mtime_ns": image_stat.st_mtime_ns,
+    }
+    if sidecar_path.exists():
+        sidecar_stat = sidecar_path.stat()
+        fingerprint.update(
+            {
+                "sidecar_path": as_project_path(sidecar_path),
+                "sidecar_size_bytes": sidecar_stat.st_size,
+                "sidecar_mtime_ns": sidecar_stat.st_mtime_ns,
+            }
+        )
+    else:
+        fingerprint.update(
+            {
+                "sidecar_path": None,
+                "sidecar_size_bytes": None,
+                "sidecar_mtime_ns": None,
+            }
+        )
+    return fingerprint
+
+
+def record_matches_source(record: dict[str, Any], image_path: Path) -> bool:
+    if record.get("asset_path") != as_project_path(image_path):
+        return False
+    current_fingerprint = source_fingerprint(image_path)
+    previous_fingerprint = record.get("source_fingerprint")
+    if isinstance(previous_fingerprint, dict):
+        return previous_fingerprint == current_fingerprint
+
+    if record.get("file_size_bytes") != current_fingerprint["image_size_bytes"]:
+        return False
+
+    sidecar_meta = load_json(sidecar_path_for(image_path))
+    if not sidecar_meta:
+        return True
+    if record.get("description", "") != sidecar_meta.get("description", ""):
+        return False
+    if str(record.get("media_id", "")) != str(sidecar_meta.get("media_id", "")):
+        return False
+    return True
+
+
+def parse_portfolio_number(portfolio_id: Any) -> tuple[int, int] | None:
+    match = re.fullmatch(r"P(\d+)", str(portfolio_id or ""))
+    if not match:
+        return None
+    return int(match.group(1)), len(match.group(1))
+
+
+def next_portfolio_id(existing_records: list[dict[str, Any]], used_ids: set[str], image_count: int) -> str:
+    parsed_numbers = [
+        parsed
+        for record in existing_records
+        if (parsed := parse_portfolio_number(record.get("portfolio_id"))) is not None
+    ]
+    max_number = max((number for number, _ in parsed_numbers), default=0)
+    width = max([2, len(str(max(image_count, max_number, 1)))] + [width for _, width in parsed_numbers])
+    candidate = max_number + 1
+    while True:
+        portfolio_id = f"P{candidate:0{width}d}"
+        if portfolio_id not in used_ids:
+            return portfolio_id
+        candidate += 1
+
+
+def refresh_reused_record_paths(
+    record: dict[str, Any],
+    image_path: Path,
+    viewer_path: Path,
+    thumbnail_dir: Path | None,
+) -> dict[str, Any]:
+    refreshed = dict(record)
+    if thumbnail_dir:
+        thumbnail_path = thumbnail_dir / f"{image_path.stem}.jpg"
+        display_asset_path = thumbnail_path if thumbnail_path.exists() else make_thumbnail(image_path, thumbnail_dir)
+    else:
+        display_asset_path = image_path
+    refreshed.update(
+        {
+            "file_name": image_path.name,
+            "asset_path": as_project_path(image_path),
+            "thumbnail_path": as_project_path(display_asset_path),
+            "html_image_path": relative_html_path(viewer_path, display_asset_path),
+            "file_size_bytes": image_path.stat().st_size,
+            "source_fingerprint": source_fingerprint(image_path),
+        }
+    )
+    return refreshed
+
+
 def extract_work_scope(description: str) -> list[str]:
     scopes: list[str] = []
     for raw_line in description.splitlines():
@@ -372,6 +482,7 @@ def build_record(
     source_dir: Path,
     viewer_path: Path,
     thumbnail_dir: Path | None,
+    portfolio_id: str | None = None,
 ) -> dict[str, Any]:
     image_name = image_path.name
     description = source_meta.get("description", "")
@@ -389,7 +500,7 @@ def build_record(
     strategy = STRATEGY_BY_CUT_TYPE.get(normalized_cut_type, STRATEGY_BY_CUT_TYPE["campaign_key_visual"])
     post_id = str(source_meta.get("post_id", "unknown"))
     project_group_id = f"ig_{post_id}"
-    portfolio_id = f"P{index:0{max(2, len(str(image_count)))}d}"
+    portfolio_id = portfolio_id or f"P{index:0{max(2, len(str(image_count)))}d}"
     source_url = source_meta.get("post_url", "")
     proposal_use = seed_meta.get("proposal_use", "")
     group = seed_meta.get("group", "미분류")
@@ -442,6 +553,7 @@ def build_record(
         "review_status": "needs_review",
         "review_notes": "AI/휴리스틱 1차 메타. 영업 제안서 반영 전 권리, 브랜드명, 제안 문구 검수 필요.",
         "file_size_bytes": image_path.stat().st_size,
+        "source_fingerprint": source_fingerprint(image_path),
         **stats,
     }
 
@@ -451,15 +563,55 @@ def build_records(
     seed_path: Path,
     viewer_path: Path,
     thumbnail_dir: Path | None,
-) -> tuple[list[dict[str, Any]], list[Path], int]:
+    existing_index_path: Path,
+    rebuild_all: bool,
+) -> tuple[list[dict[str, Any]], list[Path], int, dict[str, Any]]:
     seed = load_json(seed_path)
     records: list[dict[str, Any]] = []
     image_paths, video_paths, json_count = collect_files(source_dir)
     image_count = len(image_paths)
+    existing_records = [] if rebuild_all else load_existing_records(existing_index_path)
+    existing_by_asset_path = {
+        record["asset_path"]: record
+        for record in existing_records
+        if isinstance(record.get("asset_path"), str)
+    }
+    current_asset_paths = {as_project_path(image_path) for image_path in image_paths}
+    used_portfolio_ids: set[str] = set()
+    update_stats = {
+        "metadata_update_mode": "full_rebuild" if rebuild_all else "incremental",
+        "existing_record_count": len(existing_records),
+        "reused_record_count": 0,
+        "new_record_count": 0,
+        "rebuilt_record_count": 0,
+        "removed_record_count": sum(
+            1
+            for record in existing_records
+            if record.get("asset_path") not in current_asset_paths
+        ),
+        "removed_asset_paths": [
+            record["asset_path"]
+            for record in existing_records
+            if isinstance(record.get("asset_path"), str) and record["asset_path"] not in current_asset_paths
+        ],
+    }
     for index, image_path in enumerate(image_paths, start=1):
-        source_meta = load_json(image_path.with_suffix(image_path.suffix + ".json"))
+        asset_path = as_project_path(image_path)
+        existing_record = existing_by_asset_path.get(asset_path)
+        if existing_record and record_matches_source(existing_record, image_path):
+            reused_record = refresh_reused_record_paths(existing_record, image_path, viewer_path, thumbnail_dir)
+            records.append(reused_record)
+            if isinstance(reused_record.get("portfolio_id"), str):
+                used_portfolio_ids.add(reused_record["portfolio_id"])
+            update_stats["reused_record_count"] += 1
+            continue
+
+        source_meta = load_json(sidecar_path_for(image_path))
         seed_meta = seed.get(image_path.name, {})
         seed_matched = bool(seed_meta)
+        portfolio_id = existing_record.get("portfolio_id") if existing_record else None
+        if not isinstance(portfolio_id, str):
+            portfolio_id = next_portfolio_id(existing_records, used_portfolio_ids, image_count)
         records.append(
             build_record(
                 index,
@@ -471,9 +623,15 @@ def build_records(
                 source_dir,
                 viewer_path,
                 thumbnail_dir,
+                portfolio_id=portfolio_id,
             )
         )
-    return records, video_paths, json_count
+        used_portfolio_ids.add(portfolio_id)
+        if existing_record:
+            update_stats["rebuilt_record_count"] += 1
+        else:
+            update_stats["new_record_count"] += 1
+    return records, video_paths, json_count, update_stats
 
 
 def summarize(
@@ -482,6 +640,7 @@ def summarize(
     viewer_path: Path,
     video_paths: list[Path],
     json_count: int,
+    update_stats: dict[str, Any],
 ) -> dict[str, Any]:
     group_counts = Counter(record["group"] for record in records)
     cut_counts = Counter(record["cut_type_label"] for record in records)
@@ -504,6 +663,7 @@ def summarize(
         "video_count": len(video_paths),
         "json_count": json_count,
         "skipped_video_files": [path.name for path in video_paths],
+        **update_stats,
     }
 
 
@@ -863,9 +1023,11 @@ def html_template() -> str:
           <div class="field">
             <label for="sortSelect">정렬</label>
             <select id="sortSelect">
+              <option value="uploaded_brand" selected>업로드 최신순 + 브랜드</option>
+              <option value="brand">브랜드 태그순</option>
               <option value="id">ID 순</option>
               <option value="group">그룹 순</option>
-              <option value="date">게시일 최신순</option>
+              <option value="date">업로드 최신순</option>
               <option value="brightness">밝기 순</option>
             </select>
           </div>
@@ -1081,6 +1243,37 @@ def html_template() -> str:
       if (Array.isArray(item.client_handles) && item.client_handles.length) return item.client_handles;
       return ['unknown'];
     }
+    function primaryBrandTag(item) {
+      return getBrandTags(item).slice().sort()[0] || 'unknown';
+    }
+    function numericValue(value, fallback) {
+      var number = Number(value);
+      return Number.isFinite(number) ? number : fallback;
+    }
+    function compareByBrand(a, b) {
+      var brandCompare = primaryBrandTag(a).localeCompare(primaryBrandTag(b));
+      if (brandCompare) return brandCompare;
+      var dateCompare = String(b.post_date || '').localeCompare(String(a.post_date || ''));
+      if (dateCompare) return dateCompare;
+      var projectCompare = String(a.project_group_id || '').localeCompare(String(b.project_group_id || ''));
+      if (projectCompare) return projectCompare;
+      var carouselCompare = numericValue(a.instagram_carousel_index, 999999) - numericValue(b.instagram_carousel_index, 999999);
+      if (carouselCompare) return carouselCompare;
+      var fileCompare = String(a.file_name || '').localeCompare(String(b.file_name || ''));
+      if (fileCompare) return fileCompare;
+      return String(a.portfolio_id || '').localeCompare(String(b.portfolio_id || ''));
+    }
+    function compareByUploadedDateThenBrand(a, b) {
+      var aDate = String(a.post_date || '').trim();
+      var bDate = String(b.post_date || '').trim();
+      if (aDate && !bDate) return -1;
+      if (!aDate && bDate) return 1;
+      if (aDate && bDate) {
+        var dateCompare = bDate.localeCompare(aDate);
+        if (dateCompare) return dateCompare;
+      }
+      return compareByBrand(a, b);
+    }
     function fillSelect(id, values, allLabel) {
       var select = document.getElementById(id);
       select.innerHTML = '<option value="all">' + allLabel + '</option>' + values.map(function(value) {
@@ -1114,6 +1307,8 @@ def html_template() -> str:
           (cut === 'all' || item.cut_type_label === cut);
       });
       result.sort(function(a, b) {
+        if (sort === 'uploaded_brand') return compareByUploadedDateThenBrand(a, b);
+        if (sort === 'brand') return compareByBrand(a, b);
         if (sort === 'group') return (a.group + a.portfolio_id).localeCompare(b.group + b.portfolio_id);
         if (sort === 'date') return String(b.post_date).localeCompare(String(a.post_date));
         if (sort === 'brightness') return b.average_luminance - a.average_luminance;
@@ -1420,6 +1615,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Use original images in the HTML viewer instead of generated thumbnails.",
     )
+    parser.add_argument(
+        "--rebuild-all",
+        action="store_true",
+        help="Ignore the existing data/<slug>_index.json and rebuild metadata for every image.",
+    )
     return parser.parse_args()
 
 
@@ -1440,8 +1640,16 @@ def main() -> None:
         viewer_path = ROOT / viewer_path
     thumbnail_dir = None if args.no_thumbnails else output_dir / f"{slug}_thumbnails"
 
-    records, video_paths, json_count = build_records(source_dir, seed_path, viewer_path, thumbnail_dir)
-    summary = summarize(records, source_dir, viewer_path, video_paths, json_count)
+    existing_index_path = output_dir / f"{slug}_index.json"
+    records, video_paths, json_count, update_stats = build_records(
+        source_dir,
+        seed_path,
+        viewer_path,
+        thumbnail_dir,
+        existing_index_path,
+        args.rebuild_all,
+    )
+    summary = summarize(records, source_dir, viewer_path, video_paths, json_count, update_stats)
     write_data(records, summary, output_dir, slug)
     write_html(records, summary, viewer_path)
     print(json.dumps(summary, ensure_ascii=False, indent=2))

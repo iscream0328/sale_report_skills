@@ -30,9 +30,7 @@ The Python scripts require Pillow. The PDF exporter also requires `websocket-cli
 Put local portfolio images in `portfolio/`.
 
 ```bash
-python3 scripts/build_portfolio_metadata.py \
-  --source-dir portfolio \
-  --slug portfolio
+python3 scripts/build_portfolio_metadata.py
 ```
 
 Expected outputs:
@@ -45,6 +43,8 @@ data/portfolio_thumbnails/
 data/portfolio_metadata_viewer.html
 ```
 
+The HTML viewer opens with upload date newest first, then brand tag order.
+
 Validate:
 
 ```bash
@@ -53,6 +53,15 @@ python3 -m json.tool data/portfolio_index.json >/tmp/portfolio_index_check.json
 python3 -m json.tool data/portfolio_summary.json >/tmp/portfolio_summary_check.json
 wc -l data/portfolio_index.jsonl
 ```
+
+Default behavior:
+
+- If no folder is specified, the script scans `portfolio/`.
+- Re-running the script updates `data/portfolio_index.json` incrementally.
+- Images that are still present and unchanged keep their existing metadata record.
+- New or changed images are analyzed and added or refreshed.
+- Images removed from `portfolio/` are removed from the generated index.
+- Use `--rebuild-all` only when every image should be regenerated from scratch.
 
 ## 2. Download Instagram Images
 
