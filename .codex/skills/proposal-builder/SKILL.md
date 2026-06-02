@@ -1,19 +1,19 @@
 ---
 name: proposal-builder
-description: Build cold email drafts, internal proposal builder HTML, SECTION-only HTML exports, and A4 landscape PDF proposal files from brand-image-matching outputs in this sale_report_skills repository. Use when the user asks for Proposal_builder, proposal_builder, proposal builder, 미니 제안서, 콜드메일, 제안서 생성, SECTION PDF, 가로형 PDF 다운로드, or turning brand_image_matching results into sales proposal assets.
+description: Build cold email drafts, internal proposal builder HTML, SECTION-only HTML exports, and A4 landscape PDF proposal files from brand-image-matching outputs. Use when the user asks for Proposal_builder, proposal_builder, 미니 제안서, 콜드메일, SECTION PDF, 가로형 PDF 다운로드, or turning brand_image_matching results into sales proposal assets.
 ---
 
 # Proposal Builder
 
-This is a workspace-only skill for `<project-root>`. Use it after a `brand-image-matching` run exists under `skill_ver/data/brand_runs/<run>/`.
+Use this skill after a `brand-image-matching` run exists under `data/brand_runs/<run>/`.
 
 ## Quick Start
 
 Create the cold email, selection UI, and default proposal data:
 
 ```bash
-python3 skill_ver/scripts/build_brand_outreach_assets.py \
-  --run-dir skill_ver/data/brand_runs/<run> \
+python3 scripts/build_brand_outreach_assets.py \
+  --run-dir data/brand_runs/<run> \
   --brand-name "브랜드명" \
   --contact-name "브랜드 담당자님"
 ```
@@ -21,8 +21,8 @@ python3 skill_ver/scripts/build_brand_outreach_assets.py \
 Create the direct-download A4 landscape PDF:
 
 ```bash
-python3 skill_ver/scripts/export_proposal_sections_pdf.py \
-  --run-dir skill_ver/data/brand_runs/<run>
+python3 scripts/export_proposal_sections_pdf.py \
+  --run-dir data/brand_runs/<run>
 ```
 
 ## Inputs
@@ -47,35 +47,17 @@ The scripts write into `<run>/outreach_assets/`:
 
 ## Workflow
 
-1. Confirm the current directory is `<project-root>`.
-2. Generate or refresh outreach assets with `build_brand_outreach_assets.py`.
-3. Generate the landscape PDF with `export_proposal_sections_pdf.py`.
+1. Confirm the current directory is the repository root.
+2. Generate or refresh outreach assets with `scripts/build_brand_outreach_assets.py`.
+3. Generate the landscape PDF with `scripts/export_proposal_sections_pdf.py`.
 4. Validate:
    ```bash
-   python3 -m py_compile skill_ver/scripts/build_brand_outreach_assets.py skill_ver/scripts/export_proposal_sections_pdf.py
-   python3 -m json.tool skill_ver/data/brand_runs/<run>/outreach_assets/outreach_assets.json >/dev/null
-   pdfinfo skill_ver/data/brand_runs/<run>/outreach_assets/proposal_sections_landscape.pdf
+   python3 -m py_compile scripts/build_brand_outreach_assets.py scripts/export_proposal_sections_pdf.py
+   python3 -m json.tool data/brand_runs/<run>/outreach_assets/outreach_assets.json >/dev/null
+   pdfinfo data/brand_runs/<run>/outreach_assets/proposal_sections_landscape.pdf
    ```
 5. If layout changed, render at least the first PDF page to PNG with `pdftoppm` and inspect it.
 6. Report the output paths, selected counts, PDF page count, and any known limitations.
-
-## Selection Examples
-
-Use defaults from `outreach_assets.json`:
-
-```bash
-python3 skill_ver/scripts/export_proposal_sections_pdf.py \
-  --run-dir skill_ver/data/brand_runs/<run>
-```
-
-Use explicit selected portfolio IDs:
-
-```bash
-python3 skill_ver/scripts/export_proposal_sections_pdf.py \
-  --run-dir skill_ver/data/brand_runs/<run> \
-  --similar-ids P081 P082 P048 \
-  --whitespace-ids P030 P083 P084
-```
 
 ## Content Rules
 
@@ -86,6 +68,6 @@ python3 skill_ver/scripts/export_proposal_sections_pdf.py \
 
 ## Guardrails
 
-- Keep edits inside `skill_ver/` and `.codex/skills/`; do not touch existing `api/` or `web/` unless explicitly requested.
+- Do not commit generated outreach assets, PDFs, or brand run outputs.
 - Do not add dependencies without approval. The PDF exporter uses local Chrome/Chromium via DevTools and existing Python packages.
 - If Chrome is not found, pass `--chrome-path` to `export_proposal_sections_pdf.py`.

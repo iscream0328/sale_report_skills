@@ -2,20 +2,23 @@
 portfolio/
 portfolio_all/
 
-# Generated skill outputs
-skill_ver/data/*
-!skill_ver/data/.gitkeep
-skill_ver/*_metadata_viewer.html
+# Generated workflow outputs
+data/*
+!data/.gitkeep
+*_metadata_viewer.html
+
+# Local Python environment
+.venv/
 
 # Instagram downloads and logs
-script/ig_downloads/downloads/*
-!script/ig_downloads/downloads/.gitkeep
-script/ig_downloads/archive/*
-!script/ig_downloads/archive/.gitkeep
-script/ig_downloads/logs/*
-!script/ig_downloads/logs/.gitkeep
+scripts/instagram/downloads/*
+!scripts/instagram/downloads/.gitkeep
+scripts/instagram/archive/*
+!scripts/instagram/archive/.gitkeep
+scripts/instagram/logs/*
+!scripts/instagram/logs/.gitkeep
 
-# Generated proposal/browser artifacts
+# Generated browser/PDF artifacts
 output/
 *.pdf
 
@@ -23,4 +26,3 @@ output/
 __pycache__/
 *.py[cod]
 .DS_Store
-

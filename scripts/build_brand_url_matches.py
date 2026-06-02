@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Collect brand URL imagery and match it against portfolio metadata.
-
-This script is intentionally isolated under skill_ver. It does not touch the
-existing api/ or web/ application.
-"""
+"""Collect brand URL imagery and match it against portfolio metadata."""
 
 from __future__ import annotations
 
@@ -27,10 +23,9 @@ from urllib.request import Request, urlopen
 from PIL import Image
 
 
-ROOT = Path(__file__).resolve().parents[2]
-SKILL_DIR = ROOT / "skill_ver"
-DEFAULT_PORTFOLIO_INDEX = SKILL_DIR / "data" / "portfolio_all_index.json"
-DEFAULT_OUTPUT_DIR = SKILL_DIR / "data" / "brand_runs"
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_PORTFOLIO_INDEX = ROOT / "data" / "portfolio_all_index.json"
+DEFAULT_OUTPUT_DIR = ROOT / "data" / "brand_runs"
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
 SKIP_IMAGE_KEYWORDS = {
     "account",
@@ -1785,7 +1780,7 @@ def parse_args() -> argparse.Namespace:
         "--instagram-folder",
         action="append",
         type=Path,
-        help="gallery-dl Instagram download folder, for example script/ig_downloads/downloads/brand.",
+        help="gallery-dl Instagram download folder, for example scripts/instagram/downloads/brand.",
     )
     parser.add_argument(
         "--instagram-max-images-per-post",

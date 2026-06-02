@@ -1,43 +1,40 @@
 # sale_report_skills
 
-Standalone Codex skills and scripts for a brand image matching and sales proposal workflow.
+Codex skills and standalone Python scripts for turning brand imagery into portfolio recommendations, cold email drafts, and lightweight proposal assets.
 
-This repository contains only the reusable workflow code and documentation. It intentionally does not include portfolio images, Instagram downloads, brand run outputs, generated thumbnails, PDFs, or private project application code.
+This repository contains only reusable skill instructions, workflow scripts, schemas, fixtures, and docs. It does not include portfolio images, Instagram downloads, brand run outputs, generated thumbnails, PDFs, or private application code.
 
-## What Is Included
+## Repository Structure
 
-- `.codex/skills/`
-  - `build-portfolio-metadata`
-  - `brand-image-matching`
-  - `proposal-builder`
-- `skill_ver/scripts/`
-  - Portfolio metadata generation
-  - Brand URL and Instagram-folder image matching
-  - Cold email and proposal asset generation
-  - A4 landscape PDF export through local Chrome/Chromium
-- `skill_ver/schemas/`
-  - JSON schemas for portfolio images, brand source images, and match results
-- `skill_ver/*.md`
-  - Workflow plans, operating guides, and implementation notes
-- `script/ig_downloads/`
-  - `gallery-dl` helper command and usage guide
+```text
+.
+├── .codex/skills/          # Codex skill instructions
+├── data/                   # Generated local outputs, ignored except .gitkeep
+├── docs/                   # Current operating docs
+├── fixtures/               # Small HTML fixture for local parser tests
+├── schemas/                # JSON schemas for records and recommendations
+├── scripts/                # Python workflow scripts
+│   └── instagram/          # gallery-dl helper and local download folders
+└── README.md
+```
 
-## What Is Excluded
+## Included Skills
 
-The following are generated or project-private and are ignored by git:
-
-- `portfolio_all/`
-- `portfolio/`
-- `skill_ver/data/`
-- `script/ig_downloads/downloads/`
-- `script/ig_downloads/archive/`
-- `script/ig_downloads/logs/`
-- generated HTML/PDF/image outputs
-- Python cache files and OS metadata
+- `build-portfolio-metadata`: Build portfolio image metadata, thumbnails, JSON/JSONL, and a review HTML viewer.
+- `brand-image-matching`: Collect brand store/Instagram imagery and recommend similar plus whitespace portfolio examples.
+- `proposal-builder`: Generate cold email drafts, an internal proposal builder, SECTION-only HTML, and A4 landscape PDFs.
 
 ## Basic Workflow
 
 Run commands from the repository root.
+
+0. Install Python dependencies:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
 
 1. Prepare portfolio images locally:
 
@@ -48,7 +45,7 @@ mkdir -p portfolio_all
 2. Build portfolio metadata:
 
 ```bash
-python3 skill_ver/scripts/build_portfolio_metadata.py \
+python3 scripts/build_portfolio_metadata.py \
   --source-dir portfolio_all \
   --slug portfolio_all
 ```
@@ -56,15 +53,15 @@ python3 skill_ver/scripts/build_portfolio_metadata.py \
 3. Download Instagram images when needed:
 
 ```bash
-./script/ig_downloads/download_ig.command example_profile 20 chrome
+./scripts/instagram/download_ig.command example_profile 20 chrome
 ```
 
 4. Build a brand matching run:
 
 ```bash
-python3 skill_ver/scripts/build_brand_url_matches.py \
+python3 scripts/build_brand_url_matches.py \
   --url "https://example-brand.com/" \
-  --instagram-folder "script/ig_downloads/downloads/example_profile" \
+  --instagram-folder "scripts/instagram/downloads/example_profile" \
   --brand-slug example_brand \
   --max-pages 12 \
   --max-downloads 100
@@ -73,22 +70,41 @@ python3 skill_ver/scripts/build_brand_url_matches.py \
 5. Build outreach assets:
 
 ```bash
-python3 skill_ver/scripts/build_brand_outreach_assets.py \
-  --run-dir skill_ver/data/brand_runs/<run> \
+python3 scripts/build_brand_outreach_assets.py \
+  --run-dir data/brand_runs/<run> \
   --brand-name "브랜드명" \
   --contact-name "브랜드 담당자님"
 ```
 
-6. Export A4 landscape proposal PDF:
+6. Export an A4 landscape proposal PDF:
 
 ```bash
-python3 skill_ver/scripts/export_proposal_sections_pdf.py \
-  --run-dir skill_ver/data/brand_runs/<run>
+python3 scripts/export_proposal_sections_pdf.py \
+  --run-dir data/brand_runs/<run>
 ```
+
+## Current Docs
+
+- [Full User Guide](docs/USERGUIDE.md)
+- [Portfolio Metadata Workflow](docs/portfolio-metadata.md)
+- [Brand Image Matching Workflow](docs/brand-image-matching.md)
+- [Proposal Builder Workflow](docs/proposal-builder.md)
+- [Instagram Download Workflow](docs/instagram-download.md)
+
+## Generated Data Policy
+
+The following are generated locally and intentionally ignored:
+
+- `portfolio/`
+- `portfolio_all/`
+- `data/*`
+- `scripts/instagram/downloads/*`
+- `scripts/instagram/archive/*`
+- `scripts/instagram/logs/*`
+- generated HTML/PDF/image outputs
 
 ## Safety Notes
 
-- Before using externally, manually verify brand names, contact names, portfolio image rights, and client/project names.
+- Before external use, manually verify brand names, contact names, portfolio image rights, and client/project names.
 - Customer-facing proposal outputs should not expose brand reference images, source URLs, raw analysis tags, or automation language.
 - Instagram downloading uses browser cookies through `gallery-dl`; use only accounts and content you are authorized to access.
-

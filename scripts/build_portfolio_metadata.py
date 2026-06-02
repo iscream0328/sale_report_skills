@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Build portfolio metadata and an offline HTML viewer.
-
-This script intentionally lives under skill_ver so the experimental workflow can
-evolve without touching the existing app implementation.
-"""
+"""Build portfolio metadata and an offline HTML viewer."""
 
 from __future__ import annotations
 
@@ -19,11 +15,11 @@ from typing import Any
 from PIL import Image
 
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 PORTFOLIO_DIR = ROOT / "portfolio"
-SEED_PATH = ROOT / "api" / "app" / "data" / "portfolio_seed.json"
-OUTPUT_DIR = ROOT / "skill_ver" / "data"
-VIEWER_PATH = ROOT / "skill_ver" / "portfolio_metadata_viewer.html"
+SEED_PATH = ROOT / "data" / "portfolio_seed.json"
+OUTPUT_DIR = ROOT / "data"
+VIEWER_PATH = OUTPUT_DIR / "portfolio_metadata_viewer.html"
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".webm"}
 
@@ -402,7 +398,7 @@ def build_record(
     metadata_sources = [
         f"{as_project_path(source_dir)}/*",
         f"{as_project_path(source_dir)}/*.json",
-        "api/app/data/portfolio_seed.json",
+        "data/portfolio_seed.json",
         "Pillow image statistics",
     ]
     if not seed_matched:
@@ -1417,7 +1413,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--viewer-path",
         default=None,
-        help="HTML viewer path. Defaults to skill_ver/{slug}_metadata_viewer.html.",
+        help="HTML viewer path. Defaults to data/{slug}_metadata_viewer.html.",
     )
     parser.add_argument(
         "--no-thumbnails",
@@ -1439,7 +1435,7 @@ def main() -> None:
     if not output_dir.is_absolute():
         output_dir = ROOT / output_dir
     slug = slugify(args.slug or source_dir.name)
-    viewer_path = Path(args.viewer_path).expanduser() if args.viewer_path else ROOT / "skill_ver" / f"{slug}_metadata_viewer.html"
+    viewer_path = Path(args.viewer_path).expanduser() if args.viewer_path else output_dir / f"{slug}_metadata_viewer.html"
     if not viewer_path.is_absolute():
         viewer_path = ROOT / viewer_path
     thumbnail_dir = None if args.no_thumbnails else output_dir / f"{slug}_thumbnails"

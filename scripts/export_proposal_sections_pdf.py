@@ -20,8 +20,8 @@ from typing import Any
 import websocket
 
 
-ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_RUN_DIR = ROOT / "skill_ver" / "data" / "brand_runs"
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_RUN_DIR = ROOT / "data" / "brand_runs"
 
 
 def load_json(path: Path) -> Any:
