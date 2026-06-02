@@ -1,0 +1,26 @@
+# Local source image folders
+portfolio/
+portfolio_all/
+
+# Generated skill outputs
+skill_ver/data/*
+!skill_ver/data/.gitkeep
+skill_ver/*_metadata_viewer.html
+
+# Instagram downloads and logs
+script/ig_downloads/downloads/*
+!script/ig_downloads/downloads/.gitkeep
+script/ig_downloads/archive/*
+!script/ig_downloads/archive/.gitkeep
+script/ig_downloads/logs/*
+!script/ig_downloads/logs/.gitkeep
+
+# Generated proposal/browser artifacts
+output/
+*.pdf
+
+# Python/cache/OS noise
+__pycache__/
+*.py[cod]
+.DS_Store
+

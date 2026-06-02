@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "brand_portfolio_match_result.schema.json",
+  "title": "Brand Portfolio Match Result",
+  "type": "object",
+  "required": ["similar_recommendations", "whitespace_recommendations"],
+  "properties": {
+    "similar_recommendations": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 10,
+      "items": { "$ref": "#/$defs/recommendation" }
+    },
+    "whitespace_recommendations": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 10,
+      "items": { "$ref": "#/$defs/recommendation" }
+    }
+  },
+  "$defs": {
+    "recommendation": {
+      "type": "object",
+      "required": [
+        "rank",
+        "recommendation_type",
+        "score",
+        "portfolio_id",
+        "cut_type",
+        "reasons",
+        "proposal_sentence"
+      ],
+      "properties": {
+        "rank": { "type": "integer", "minimum": 1 },
+        "recommendation_type": {
+          "type": "string",
+          "enum": ["similar", "whitespace"]
+        },
+        "label": { "type": "string" },
+        "score": { "type": "number" },
+        "portfolio_id": { "type": "string" },
+        "project_group_id": { "type": "string" },
+        "file_name": { "type": "string" },
+        "client_or_project": { "type": "string" },
+        "group": { "type": "string" },
+        "cut_type": { "type": "string" },
+        "cut_type_label": { "type": "string" },
+        "visual_tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "commerce_tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "proposal_use": { "type": "string" },
+        "image_path": { "type": "string" },
+        "thumbnail_path": { "type": "string" },
+        "html_thumbnail_path": { "type": "string" },
+        "brand_reference_image_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "proposal_sentence": { "type": "string" },
+        "review_status": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

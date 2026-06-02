@@ -1,0 +1,4 @@
+interface:
+  display_name: "Build Portfolio Metadata"
+  short_description: "Meta-index portfolio image folders in this workspace."
+  default_prompt: "Build metadata and an HTML viewer for a portfolio image folder using the workspace script."

@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PortfolioImageMetadata",
+  "type": "object",
+  "required": [
+    "portfolio_id",
+    "asset_path",
+    "source_type",
+    "cut_type",
+    "visual_tags",
+    "commerce_tags",
+    "proposal_use"
+  ],
+  "properties": {
+    "portfolio_id": { "type": "string" },
+    "project_group_id": { "type": "string" },
+    "asset_path": { "type": "string" },
+    "thumbnail_path": { "type": "string" },
+    "source_type": {
+      "type": "string",
+      "enum": ["instagram", "upload", "archive", "website", "unknown"]
+    },
+    "source_url": { "type": "string" },
+    "client_or_project": { "type": "string" },
+    "description": { "type": "string" },
+    "created_at": { "type": "string" },
+    "rights_note": { "type": "string" },
+    "width": { "type": "integer" },
+    "height": { "type": "integer" },
+    "aspect_ratio": { "type": "number" },
+    "dominant_colors": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "brightness_level": {
+      "type": "string",
+      "enum": ["dark", "mid", "bright", "mixed", "unknown"]
+    },
+    "contrast_level": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "unknown"]
+    },
+    "cut_type": {
+      "type": "string",
+      "enum": [
+        "campaign_key_visual",
+        "model_styling_cut",
+        "product_object_cut",
+        "detail_or_pattern_cut",
+        "sports_active_cut",
+        "seasonal_lifestyle_cut",
+        "closeup_mood_cut",
+        "unknown"
+      ]
+    },
+    "visual_tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "commerce_tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "work_scope": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "model_presence": {
+      "type": "string",
+      "enum": ["none", "single", "multiple", "partial", "unknown"]
+    },
+    "product_presence": {
+      "type": "string",
+      "enum": ["none", "single", "multiple", "unclear", "unknown"]
+    },
+    "proposal_use": { "type": "string" },
+    "similar_when": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "contrast_when": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "do_not_use_when": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "embedding_ref": { "type": "string" },
+    "review_status": {
+      "type": "string",
+      "enum": ["ai_draft", "human_reviewed", "needs_review"]
+    },
+    "review_notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}

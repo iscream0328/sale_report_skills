@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BrandSourceImageMetadata",
+  "type": "object",
+  "required": [
+    "brand_image_id",
+    "source_url",
+    "image_url",
+    "image_role",
+    "selection_score",
+    "analysis"
+  ],
+  "properties": {
+    "brand_image_id": { "type": "string" },
+    "brand_name": { "type": "string" },
+    "input_url": { "type": "string" },
+    "source_url": { "type": "string" },
+    "image_url": { "type": "string" },
+    "local_asset_path": { "type": "string" },
+    "page_context": {
+      "type": "string",
+      "enum": ["product", "collection", "campaign", "collaboration", "project", "instagram", "home", "unknown"]
+    },
+    "image_role": {
+      "type": "string",
+      "enum": ["product", "campaign", "collaboration", "project", "editorial", "unknown"]
+    },
+    "candidate_reason": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "width": { "type": "integer" },
+    "height": { "type": "integer" },
+    "aspect_ratio": { "type": "number" },
+    "selection_score": { "type": "number" },
+    "dedupe_key": { "type": "string" },
+    "analysis": {
+      "type": "object",
+      "required": ["cut_type", "visual_tags", "commerce_tags", "summary"],
+      "properties": {
+        "cut_type": { "type": "string" },
+        "visual_tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "commerce_tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "dominant_colors": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "model_presence": { "type": "string" },
+        "product_presence": { "type": "string" },
+        "brand_tone": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "summary": { "type": "string" },
+        "strengths": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "gaps": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "embedding_ref": { "type": "string" },
+    "review_status": {
+      "type": "string",
+      "enum": ["auto_selected", "human_selected", "rejected", "needs_review"]
+    },
+    "review_notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}
