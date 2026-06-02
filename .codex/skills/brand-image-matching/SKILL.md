@@ -5,7 +5,7 @@ description: Build a brand image matching run from a brand store URL and/or Inst
 
 # Brand Image Matching
 
-Use this skill in the `sale_report_skills` repository after a portfolio index exists at `data/portfolio_all_index.json`.
+Use this skill in the `sale_report_skills` repository after a portfolio index exists at `data/portfolio_index.json`.
 
 ## Quick Start
 
@@ -42,7 +42,7 @@ python3 scripts/build_brand_url_matches.py \
 - `--source-html`: Saved HTML for pages that cannot be fetched directly.
 - `--brand-slug`: Stable output slug. Use lowercase ASCII with underscores when possible.
 - `--run-id`: Optional stable run id when regenerating a known viewer.
-- `--portfolio-index`: Optional portfolio index. Defaults to `data/portfolio_all_index.json`.
+- `--portfolio-index`: Optional portfolio index. Defaults to `data/portfolio_index.json`.
 - `--instagram-max-images-per-post`: Defaults to 2 so one carousel does not dominate the brand mood.
 
 ## Outputs

@@ -18,7 +18,7 @@ import build_brand_url_matches as matching
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RUN_DIR = ROOT / "data" / "brand_runs"
-DEFAULT_PORTFOLIO_INDEX = ROOT / "data" / "portfolio_all_index.json"
+DEFAULT_PORTFOLIO_INDEX = ROOT / "data" / "portfolio_index.json"
 
 
 def load_json(path: Path) -> Any:

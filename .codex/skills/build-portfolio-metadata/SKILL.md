@@ -1,6 +1,6 @@
 ---
 name: build-portfolio-metadata
-description: Build searchable portfolio metadata JSON/JSONL, thumbnails, and a visual HTML viewer from local image folders. Use when the user asks for build_portfolio_metadata, portfolio image folder meta-indexing, portfolio_all metadata generation, or a workflow where dropping images into a folder should produce metadata and an HTML review screen.
+description: Build searchable portfolio metadata JSON/JSONL, thumbnails, and a visual HTML viewer from local image folders. Use when the user asks for build_portfolio_metadata, portfolio image folder meta-indexing, portfolio metadata generation, or a workflow where dropping images into a folder should produce metadata and an HTML review screen.
 ---
 
 # Build Portfolio Metadata
@@ -13,8 +13,8 @@ Run from the repository root:
 
 ```bash
 python3 scripts/build_portfolio_metadata.py \
-  --source-dir portfolio_all \
-  --slug portfolio_all
+  --source-dir portfolio \
+  --slug portfolio
 ```
 
 For another local image folder:
@@ -35,13 +35,13 @@ python3 scripts/build_portfolio_metadata.py \
 
 ## Outputs
 
-For `--slug portfolio_all`, the script writes:
+For `--slug portfolio`, the script writes:
 
-- `data/portfolio_all_index.json`
-- `data/portfolio_all_index.jsonl`
-- `data/portfolio_all_summary.json`
-- `data/portfolio_all_thumbnails/`
-- `data/portfolio_all_metadata_viewer.html`
+- `data/portfolio_index.json`
+- `data/portfolio_index.jsonl`
+- `data/portfolio_summary.json`
+- `data/portfolio_thumbnails/`
+- `data/portfolio_metadata_viewer.html`
 
 The JSON/JSONL files are the machine-readable portfolio index. The HTML file is the human review surface.
 

@@ -6,13 +6,13 @@ Use this workflow to turn local portfolio image folders into a searchable metada
 
 ```bash
 python3 scripts/build_portfolio_metadata.py \
-  --source-dir portfolio_all \
-  --slug portfolio_all
+  --source-dir portfolio \
+  --slug portfolio
 ```
 
 ## Inputs
 
-- Local source folder such as `portfolio_all/`
+- Local source folder such as `portfolio/`
 - Optional sidecar metadata such as `image.jpg.json`
 - Optional seed metadata at `data/portfolio_seed.json`
 

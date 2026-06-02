@@ -1,6 +1,6 @@
 # Brand Image Matching Workflow
 
-Use this workflow after `data/portfolio_all_index.json` exists.
+Use this workflow after `data/portfolio_index.json` exists.
 
 ## Command
 
@@ -18,7 +18,7 @@ python3 scripts/build_brand_url_matches.py \
 - `--url`: Brand store, product detail, collection, lookbook, campaign, editorial, or project URL. Repeat for multiple URLs.
 - `--instagram-folder`: Local gallery-dl folder from `scripts/instagram/download_ig.command`.
 - `--source-html`: Saved HTML fixture or static page.
-- `--portfolio-index`: Defaults to `data/portfolio_all_index.json`.
+- `--portfolio-index`: Defaults to `data/portfolio_index.json`.
 - `--output-dir`: Defaults to `data/brand_runs/`.
 
 ## Outputs

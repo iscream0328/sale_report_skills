@@ -24,7 +24,7 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_PORTFOLIO_INDEX = ROOT / "data" / "portfolio_all_index.json"
+DEFAULT_PORTFOLIO_INDEX = ROOT / "data" / "portfolio_index.json"
 DEFAULT_OUTPUT_DIR = ROOT / "data" / "brand_runs"
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
 SKIP_IMAGE_KEYWORDS = {

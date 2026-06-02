@@ -24,6 +24,41 @@ This repository contains only reusable skill instructions, workflow scripts, sch
 - `brand-image-matching`: Collect brand store/Instagram imagery and recommend similar plus whitespace portfolio examples.
 - `proposal-builder`: Generate cold email drafts, an internal proposal builder, SECTION-only HTML, and A4 landscape PDFs.
 
+## New Codex User Setup
+
+For a fresh project, a Codex user can clone this repository and run the workflow in order. The repository includes the skills, scripts, schemas, fixtures, and operating docs. It does not include the user's real portfolio images or generated brand outputs.
+
+```bash
+git clone https://github.com/iscream0328/sale_report_skills.git
+cd sale_report_skills
+
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
+
+Then place portfolio images in:
+
+```text
+portfolio/
+```
+
+After that, run the skills or scripts in this order:
+
+1. Build the portfolio index from `portfolio/`.
+2. Download Instagram images if the brand's Instagram should be included.
+3. Run brand image matching with the store URL and/or Instagram folder.
+4. Generate the cold email draft and internal proposal builder.
+5. Export SECTION-only HTML and an A4 landscape proposal PDF.
+
+Codex users can ask Codex to use the skills in `.codex/skills/` in the same order:
+
+```text
+Use build-portfolio-metadata for the images in portfolio/.
+Use brand-image-matching with this store URL and Instagram folder.
+Use proposal-builder for the generated brand run.
+```
+
 ## Basic Workflow
 
 Run commands from the repository root.
@@ -39,15 +74,15 @@ python -m pip install -r requirements.txt
 1. Prepare portfolio images locally:
 
 ```bash
-mkdir -p portfolio_all
+mkdir -p portfolio
 ```
 
 2. Build portfolio metadata:
 
 ```bash
 python3 scripts/build_portfolio_metadata.py \
-  --source-dir portfolio_all \
-  --slug portfolio_all
+  --source-dir portfolio \
+  --slug portfolio
 ```
 
 3. Download Instagram images when needed:
@@ -96,7 +131,6 @@ python3 scripts/export_proposal_sections_pdf.py \
 The following are generated locally and intentionally ignored:
 
 - `portfolio/`
-- `portfolio_all/`
 - `data/*`
 - `scripts/instagram/downloads/*`
 - `scripts/instagram/archive/*`

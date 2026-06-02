@@ -1,6 +1,5 @@
 # Local source image folders
 portfolio/
-portfolio_all/
 
 # Generated workflow outputs
 data/*

@@ -27,31 +27,31 @@ The Python scripts require Pillow. The PDF exporter also requires `websocket-cli
 
 ## 1. Build Portfolio Metadata
 
-Put local portfolio images in `portfolio_all/`.
+Put local portfolio images in `portfolio/`.
 
 ```bash
 python3 scripts/build_portfolio_metadata.py \
-  --source-dir portfolio_all \
-  --slug portfolio_all
+  --source-dir portfolio \
+  --slug portfolio
 ```
 
 Expected outputs:
 
 ```text
-data/portfolio_all_index.json
-data/portfolio_all_index.jsonl
-data/portfolio_all_summary.json
-data/portfolio_all_thumbnails/
-data/portfolio_all_metadata_viewer.html
+data/portfolio_index.json
+data/portfolio_index.jsonl
+data/portfolio_summary.json
+data/portfolio_thumbnails/
+data/portfolio_metadata_viewer.html
 ```
 
 Validate:
 
 ```bash
 python3 -m py_compile scripts/build_portfolio_metadata.py
-python3 -m json.tool data/portfolio_all_index.json >/tmp/portfolio_all_index_check.json
-python3 -m json.tool data/portfolio_all_summary.json >/tmp/portfolio_all_summary_check.json
-wc -l data/portfolio_all_index.jsonl
+python3 -m json.tool data/portfolio_index.json >/tmp/portfolio_index_check.json
+python3 -m json.tool data/portfolio_summary.json >/tmp/portfolio_summary_check.json
+wc -l data/portfolio_index.jsonl
 ```
 
 ## 2. Download Instagram Images
